@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/png" href="images/favicon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+        <link rel="manifest" href="site.webmanifest" />
+
+        <title>FALTANTE DE STOCK</title>
+        <link rel="stylesheet" href="styles.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+            import {
+                getDatabase,
+                ref,
+                get,
+                set
+            } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+            import {
+                getAuth,
+                signInWithEmailAndPassword
+            } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyDjpNm660EwjjWkF0QXuzFtv5BnFq1wR5A",
+                authDomain: "showroom-base.firebaseapp.com",
+                databaseURL: "https://showroom-base-default-rtdb.firebaseio.com",
+                projectId: "showroom-base",
+                storageBucket: "showroom-base.firebasestorage.app",
+                messagingSenderId: "578886506501",
+                appId: "1:578886506501:web:5f93c8312c183b71de246c"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            const auth = getAuth(app);
+
+            // ⚠️¡¡¡REEMPLAZA CON TUS CREDENCIALES!!!
+            const FIREBASE_USER = "elreparosario@gmail.com";
+            const FIREBASE_PASSWORD = "4562512";
+
+            // Autenticación automática
+            window.authReady = signInWithEmailAndPassword(auth, FIREBASE_USER, FIREBASE_PASSWORD).catch((error) => {
+                console.error("Error de autenticación:", error);
+                alert("Error crítico: No se pudo conectar a la base de datos");
+            });
+
+            window.firebaseSDK = {
+                db: db,
+                ref: (path) => ref(db, path),
+                get: get,
+                set: set,
+                auth: auth
+            };
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        <script src="script.js" defer></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>FALTANTE DE STOCK</h1>
+
+            <div class="input-box">
+                <input type="text" id="itemInput" placeholder="Añadir un item..." onkeypress="handleKeyPress(event)" />
+                <button onclick="addItem()">Añadir</button>
+            </div>
+
+            <div class="buttons">
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+                <button onclick="saveToCloud()" title="Guardar en la nube" class="cloud-save-btn">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </button>
+
+                <button onclick="loadFromCloud()" title="Cargar desde la nube" class="cloud-load-btn">
+                    <i class="fas fa-cloud-download-alt"></i>
+                </button>
+
+                <button onclick="deleteCompletedItems()" title="Eliminar completados" class="delete-button">
+                    <i class="fas fa-trash"></i>
+                    Eliminar Seleccionados
+                </button>
+            </div>
+
+            <div class="buttons-row excel-buttons">
+                <button onclick="saveFile()" title="Guardar en Excel" class="excel-save-btn">
+                    <i class="fas fa-save"></i>
+                    Guardar Excel
+                </button>
+
+                <button
+                    onclick="document.getElementById('fileInput').click()"
+                    title="Cargar desde Excel"
+                    class="excel-load-btn">
+                    <i class="fas fa-file-upload"></i>
+                    Cargar Excel
+                </button>
+
+                <input type="file" id="fileInput" accept=".xlsx" hidden />
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar item..." autocomplete="off" />
+            </div>
+            <div class="items-box">
+                <ul id="itemList"></ul>
+            </div>
+
+            <div id="loader" class="loader-hidden"></div>
+        </div>
+        <div id="toast" class="toast-hidden"></div>
+    </body>
+</html>
